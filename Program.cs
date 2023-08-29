@@ -22,7 +22,6 @@ namespace lab1EDII_CésarSilva
                 switch (opcion)
                 {
                     case 1:
-                        int count = 0;
                         Console.WriteLine("Inserte ruta absoluta del archivo");
                         ruta = Console.ReadLine();
                         string[] archivo = File.ReadAllLines(ruta);
@@ -34,7 +33,6 @@ namespace lab1EDII_CésarSilva
                             Console.WriteLine(valores[0]);
                             Console.WriteLine(valores[1]);
                             Console.ReadLine();
-                            count++;
 
                         }
                         break;
