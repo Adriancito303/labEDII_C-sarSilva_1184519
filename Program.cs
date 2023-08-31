@@ -51,6 +51,7 @@ namespace lab1EDII_CésarSilva
         public static List<serializar> inserte = new List<serializar>();
         public static List<serializar> delete = new List<serializar>();
         public static List<serializar> patch = new List<serializar>();
+        public static List<serializar> resultados = new List<serializar>();
         static void Main(string[] args)
         {
             bool volver = true;
@@ -211,10 +212,35 @@ namespace lab1EDII_CésarSilva
                             Console.ReadLine();
                             break;
                         case 3:
+                            resultados.Clear();
                             Console.WriteLine("----------------------Que desea buscar----------------------");
-                            string busquedan = Console.ReadLine();
-                            Console.WriteLine("Desea volver al menú principal?");
-                            Console.WriteLine("Presione 1 para volver, u otra tecla para salir.");
+                            string busqueda = Console.ReadLine();
+                            Console.Clear();
+                            Console.WriteLine("----------------------Sus Resultados----------------------");
+                            foreach (var item in inserte)
+                            {
+                                if (item.name == busqueda)
+                                {
+                                    Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}");
+                                    resultados.Add(item);
+                                }
+                            }
+                            Console.WriteLine("");
+                            Console.ReadLine();
+                            string jsonl = "resultados.jsonl";
+                            using (StreamWriter escritura = new StreamWriter(jsonl))
+                            {
+                                foreach (var resul in resultados)
+                                {
+                                    string jsons = JsonConvert.SerializeObject(resul);
+                                    escritura.WriteLine(jsons);
+                                }
+                            }
+                            Console.WriteLine($"-Se guardaron exitosamente en un archivo llamado: { jsonl}-");
+                            Console.ReadLine();
+                            Console.Clear();
+                            Console.WriteLine("-----------------¿Desea volver al menú principal?-----------------");
+                            Console.WriteLine("---------Presione 1 para volver, u otra tecla para salir.---------");
                             opi = Console.ReadLine();
                             if (opi == "1")
                             {
