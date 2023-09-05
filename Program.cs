@@ -33,6 +33,127 @@ namespace lab1EDII_CésarSilva
         public string datebirth { get; set; }
         public string address { get; set; }
     }
+    public class AVLNode
+    {
+        public int Data { get; set; }
+        public int Height { get; set; }
+        public AVLNode Left { get; set; }
+        public AVLNode Right { get; set; }
+
+        public AVLNode(int data)
+        {
+            Data = data;
+            Height = 1;
+            Left = null;
+            Right = null;
+        }
+    }
+
+    public class AVLTree
+    {
+        private AVLNode root;
+
+        public AVLTree()
+        {
+            root = null;        // Constructor
+        }
+
+        public void Insert(int data)
+        {
+            root = Insert(root, data);         // Insertar un nodo en el árbol
+        }
+
+        private AVLNode Insert(AVLNode node, int data)
+        {
+            if (node == null)
+            {
+                return new AVLNode(data);
+            }
+
+            if (data < node.Data)
+            {
+                node.Left = Insert(node.Left, data);
+            }
+            else if (data > node.Data)
+            {
+                node.Right = Insert(node.Right, data);
+            }
+            else // Duplicados no permitidos en este ejemplo
+            {
+                return node;
+            }
+
+            node.Height = 1 + Math.Max(Height(node.Left), Height(node.Right));// Actualizar la altura del nodo actual
+
+            int balance = GetBalance(node);// Verificar el balance y realizar rotaciones si es necesario
+
+            if (balance > 1)// Casos de rotación
+            {
+               // if (data < node.Left.Data)
+               // {
+               //     return RotateRight(node);
+               // }
+               // else
+               // {
+               //     node.Left = RotateLeft(node.Left);
+               //     return RotateRight(node);
+               // }
+            }
+
+            if (balance < -1)
+            {
+                //if (data > node.Right.Data)
+                //{
+                //    return RotateLeft(node);
+                //}
+                //else
+                //{
+                //    node.Right = RotateRight(node.Right);
+                //    return RotateLeft(node);
+                //}
+            }
+
+            return node;
+        }
+
+        public void Delete(int data)
+        {
+            root = Delete(root, data);// Eliminar un nodo del árbol
+        }
+
+        private AVLNode Delete(AVLNode node, int data)
+        {
+            return null;
+        }
+
+        private int Height(AVLNode node)// Funciones de equilibrio y rotación
+        {
+            if (node == null)
+            {
+                return 0;
+            }
+            return node.Height;
+        }
+        
+        private int GetBalance(AVLNode node)
+        {
+            if (node == null)
+            {
+                return 0;
+            }
+            return Height(node.Left) - Height(node.Right);
+        }
+        //
+        //private AVLNode RotateRight(AVLNode y)
+        //{
+        //    // Implementar rotación a la derecha aquí
+        //}
+        //
+        //private AVLNode RotateLeft(AVLNode x)
+        //{
+        //    // Implementar rotación a la izquierda aquí
+        //}
+    }
 
     class lectura
     {
@@ -52,6 +173,7 @@ namespace lab1EDII_CésarSilva
         public static List<serializar> delete = new List<serializar>();
         public static List<serializar> patch = new List<serializar>();
         public static List<serializar> resultados = new List<serializar>();
+        public static AVLTree arbol = new AVLTree();
         static void Main(string[] args)
         {
             bool volver = true;
@@ -99,7 +221,6 @@ namespace lab1EDII_CésarSilva
                                     personas = JsonConvert.DeserializeObject<List<serializar>>(guardar.jsond);//se deserializa el json
                                                                                                               //inserte.RemoveRange(personas);
                                     delete.AddRange(personas);
-
                                     foreach (var item in delete)
                                     {
                                         inserte.RemoveAll(inserte =>
@@ -127,6 +248,14 @@ namespace lab1EDII_CésarSilva
                                     }
                                     patch.Clear();
                                 }
+                                //AVLTree arbol = new AVLTree();
+                                foreach (var item in inserte)
+                                {
+                                    if (int.TryParse(item.dpi, out int value))
+                                    {
+                                        arbol.Insert(value);
+                                    }
+                                }
                             }
                             Console.Clear();
                             //foreach (var item in inserte)
@@ -143,7 +272,7 @@ namespace lab1EDII_CésarSilva
                             volver = true;
                             Console.ReadLine();
                             break;
-                        case 2:
+                        case 2: //AGREGAR 2DO ARCHIVO CSV
                             Console.WriteLine("Inserte ruta absoluta del archivo");
                             ruta = Console.ReadLine();
                             string[] archivo2 = File.ReadAllLines(ruta);
@@ -195,6 +324,14 @@ namespace lab1EDII_CésarSilva
                                     }
                                     patch.Clear();
                                 }
+                                //AVLTree arbol = new AVLTree();
+                                foreach (var item in inserte)
+                                {
+                                    if (int.TryParse(item.dpi, out int value))
+                                    {
+                                        arbol.Insert(value);
+                                    }
+                                }
                             }
                             Console.Clear();
                             //foreach (var item in inserte)
@@ -211,8 +348,9 @@ namespace lab1EDII_CésarSilva
                             volver = true;
                             Console.ReadLine();
                             break;
-                        case 3:
+                        case 3: //BUSQUEDA
                             resultados.Clear();
+                            AVLTree arbol1;
                             Console.WriteLine("----------------------Que desea buscar----------------------");
                             string busqueda = Console.ReadLine();
                             Console.Clear();
@@ -221,6 +359,7 @@ namespace lab1EDII_CésarSilva
                             {
                                 if (item.name == busqueda)
                                 {
+                                    arbol1 = new AVLTree();
                                     Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}");
                                     resultados.Add(item);
                                 }
@@ -230,7 +369,7 @@ namespace lab1EDII_CésarSilva
                             string jsonl = "resultados.jsonl";
                             using (StreamWriter escritura = new StreamWriter(jsonl))
                             {
-                                foreach (var resul in resultados)
+                                foreach (var resul in resultados)//arbol)
                                 {
                                     string jsons = JsonConvert.SerializeObject(resul);
                                     escritura.WriteLine(jsons);
@@ -256,7 +395,7 @@ namespace lab1EDII_CésarSilva
                                 Console.ReadLine();
                             }
                             break;
-                        case 4:
+                        case 4://SALIDA
                             Console.Clear();
                             Console.WriteLine("----------------------------Adios----------------------------");
                             Console.ReadLine();
