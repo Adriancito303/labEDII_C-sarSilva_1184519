@@ -240,11 +240,21 @@ namespace lab1EDII_CésarSilva
                                         var reemplazo = inserte.Find(inserte =>
                                                                                 inserte.name == item.name &&
                                                                                 inserte.dpi == item.dpi);
-                                        if (reemplazo != null)
+                                        if (item.address != null)
                                         {
-                                            reemplazo.datebirth = item.datebirth;
+                                            //reemplazo.datebirth = item.datebirth;
                                             reemplazo.address = item.address;
                                         }
+                                        if (item.datebirth != null)
+                                        {
+                                            reemplazo.datebirth = item.datebirth;
+                                            //reemplazo.address = item.address;
+                                        }
+                                        //if (reemplazo != null)
+                                        //{
+                                        //    reemplazo.datebirth = item.datebirth;
+                                        //    reemplazo.address = item.address;
+                                        //}
                                     }
                                     patch.Clear();
                                 }
@@ -316,11 +326,12 @@ namespace lab1EDII_CésarSilva
                                         var reemplazo = inserte.Find(inserte =>
                                                                                 inserte.name == item.name &&
                                                                                 inserte.dpi == item.dpi);
-                                        if (reemplazo != null)
-                                        {
-                                            reemplazo.datebirth = item.datebirth;
-                                            reemplazo.address = item.address;
-                                        }
+                                        
+                                        //else //if (reemplazo != null)
+                                        //{
+                                        //    reemplazo.datebirth = item.datebirth;
+                                        //    reemplazo.address = item.address;
+                                        //}
                                     }
                                     patch.Clear();
                                 }
@@ -347,7 +358,7 @@ namespace lab1EDII_CésarSilva
                             Console.WriteLine("-----------------Volviendo al menú principal-----------------");
                             volver = true;
                             Console.ReadLine();
-                            break;
+                            break; //
                         case 3: //BUSQUEDA
                             resultados.Clear();
                             AVLTree arbol1;
