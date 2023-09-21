@@ -3,7 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Linq;
-
+//C:\Users\cadri\OneDrive\Escritorio\input.csv
 namespace lab1EDII_CésarSilva
 {
     public class HuffmanNode
@@ -91,6 +91,27 @@ namespace lab1EDII_CésarSilva
 
             return huffmanCodes;
         }
+
+        public string DecodificarHuffmanEmpresas(Dictionary<string, string> huffmanCodes, string codigoHuffman)
+        {
+            // Crear un diccionario inverso para buscar los valores correspondientes a los códigos Huffman
+            Dictionary<string, string> reverseHuffmanCodes = huffmanCodes.ToDictionary(pair => pair.Value, pair => pair.Key);
+
+            string resultado = "";
+            string codigoActual = "";
+
+            foreach (char bit in codigoHuffman)
+            {
+                codigoActual += bit;
+                if (reverseHuffmanCodes.ContainsKey(codigoActual))
+                {
+                    resultado += reverseHuffmanCodes[codigoActual];
+                    codigoActual = "";
+                }
+            }
+
+            return resultado;
+        }
     }
     
     
@@ -167,6 +188,27 @@ namespace lab1EDII_CésarSilva
             GenerateHuffmanCodes(nodes[0], "", huffmanCodes);
 
             return huffmanCodes;
+        }
+
+        public string DecodificarHuffmanEmpresas(Dictionary<string, string> huffmanCodes, string codigoHuffman)
+        {
+            // Crear un diccionario inverso para buscar los valores correspondientes a los códigos Huffman
+            Dictionary<string, string> reverseHuffmanCodes = huffmanCodes.ToDictionary(pair => pair.Value, pair => pair.Key);
+
+            string resultado = "";
+            string codigoActual = "";
+
+            foreach (char bit in codigoHuffman)
+            {
+                codigoActual += bit;
+                if (reverseHuffmanCodes.ContainsKey(codigoActual))
+                {
+                    resultado += reverseHuffmanCodes[codigoActual];
+                    codigoActual = "";
+                }
+            }
+
+            return resultado;
         }
     }
     public class AVLNode
@@ -425,6 +467,7 @@ namespace lab1EDII_CésarSilva
                             {
                                 foreach (var resul in resultados)//arbol)
                                 {
+                                    string empresaDecodificada = resul.DecodificarHuffmanEmpresas(huffmanCodes, Convert.ToString(resul.companies));
                                     string jsons = JsonConvert.SerializeObject(resul);
                                     escritura.WriteLine(jsons);
                                 }
@@ -462,11 +505,8 @@ namespace lab1EDII_CésarSilva
                                 if (item.name == busqueda2)
                                 {
                                     arbol12 = new AVLTree();
-                                    Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}, Empresas:");
-                                    foreach (var kvp in huffmanCodes)
-                                    {
-                                        Console.WriteLine($" {kvp.Value}");
-                                    }
+                                    Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}");
+                                    
                                     resultados.Add(item);
                                 }
                             }
