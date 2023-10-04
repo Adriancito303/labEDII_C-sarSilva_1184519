@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Linq;
+//1041443605068
 //C:\Users\cadri\OneDrive\Escritorio\input.csv
 namespace lab1EDII_CésarSilva
 {
@@ -309,7 +310,50 @@ namespace lab1EDII_CésarSilva
     }
     class Program
     {
-        
+        static string CifrarTSimple(string texto, int desplazamiento)
+        {
+            char[] caracteres = texto.ToCharArray();
+
+            for (int i = 0; i < caracteres.Length; i++)
+            {
+                // Ignora los espacios en blanco
+                if (caracteres[i] != ' ')
+                {
+                    // Aplica el desplazamiento para cambiar la posición de la letra
+                    caracteres[i] = (char)(caracteres[i] + desplazamiento);
+
+                    // Si la letra supera 'Z' (mayúsculas) o 'z' (minúsculas), vuelve al principio del alfabeto
+                    if ((char.IsUpper(texto[i]) && caracteres[i] > 'Z') || (char.IsLower(texto[i]) && caracteres[i] > 'z'))
+                    {
+                        caracteres[i] = (char)(caracteres[i] - 26);
+                    }
+                }
+            }
+
+            return new string(caracteres);
+        }
+        static string Descifrar(string textoCifrado, int desplazamiento)
+        {
+            char[] caracteres = textoCifrado.ToCharArray();
+
+            for (int i = 0; i < caracteres.Length; i++)
+            {
+                // Ignora los espacios en blanco
+                if (caracteres[i] != ' ')
+                {
+                    // Aplica el desplazamiento inverso para volver a la posición original de la letra
+                    caracteres[i] = (char)(caracteres[i] - desplazamiento);
+
+                    // Si la letra es menor que 'A' (mayúsculas) o 'a' (minúsculas), vuelve al final del alfabeto
+                    if ((char.IsUpper(textoCifrado[i]) && caracteres[i] < 'A') || (char.IsLower(textoCifrado[i]) && caracteres[i] < 'a'))
+                    {
+                        caracteres[i] = (char)(caracteres[i] + 26);
+                    }
+                }
+            }
+
+            return new string(caracteres);
+        }
         public static List<serializar> personas = new List<serializar>();
         public static List<lectura> jtotal = new List<lectura>();
         public static List<serializar> inserte = new List<serializar>();
@@ -318,15 +362,19 @@ namespace lab1EDII_CésarSilva
         public static List<serializar> resultados = new List<serializar>();
         public static Dictionary<string, string> huffmanCodes = new Dictionary<string, string>();
         public static AVLTree arbol = new AVLTree();
+        public static List<string> nArchivos = new List<string>();
+        public static List<string> valdpi = new List<string>();
+        public static string tdescifrado;
+        public static int cartas;
         static void Main(string[] args)
         {
-
             bool volver = true;
             string opi;
             while (volver == true)
             {
                 try
                 {
+                    string carpeta = @"C:\Users\cadri\OneDrive\Documentos\TAREAS\2023\Segundo ciclo\ED II\lab\inputs";
                     volver = false;
                     Console.Clear();
                     int opcion;
@@ -345,6 +393,8 @@ namespace lab1EDII_CésarSilva
                             inserte.Clear();
                             Console.WriteLine("Inserte ruta absoluta del archivo");
                             ruta = Console.ReadLine();
+                            Console.Clear();
+                            Console.WriteLine("----------------------CARGANDO ARCHIVO-----------------------");
                             string[] archivo = File.ReadAllLines(ruta);
                             foreach (var linea in archivo)
                             {
@@ -413,6 +463,7 @@ namespace lab1EDII_CésarSilva
                                     string datoo = Convert.ToString(item);
                                     Dictionary<string, string> huffmanCodes = item.CodificarHuffmanEmpresas();
                                 }
+                                //busca los archivos y los guarda en cada posicion de nArchivos
                                 //AVLTree arbol = new AVLTree();
                                 foreach (var item in inserte)
                                 {
@@ -422,14 +473,18 @@ namespace lab1EDII_CésarSilva
                                     }
                                 }
                             }
+                            if (Directory.Exists(carpeta))
+                            {
+                                string[] archivos = Directory.GetFiles(carpeta);
+                                Console.Clear();
+                                foreach (var item in archivos)
+                                {
+                                    string archi = Path.GetFileName(item);
+                                    nArchivos.Add(archi);
+                                }
+
+                            }
                             Console.Clear();
-                            //foreach (var item in inserte)
-                            //{
-                            //    Console.WriteLine(item.name);
-                            //    Console.WriteLine(item.dpi);
-                            //    Console.WriteLine(item.datebirth);
-                            //    Console.WriteLine(item.address);
-                            //}
                             Console.WriteLine("----------------------------LISTO----------------------------");
                             Console.WriteLine("----------------------Lectura exitosa------------------------");
                             Console.WriteLine("-------------operaciones realizada correctamente-------------");
@@ -438,6 +493,7 @@ namespace lab1EDII_CésarSilva
                             Console.ReadLine();
                             break;
                         case 2: //BUSQUEDA DPI
+                            string rutaCarpeta = @"C:\Users\cadri\OneDrive\Documentos\TAREAS\2023\Segundo ciclo\ED II\lab\cartascifradas";
                             resultados.Clear();
                             AVLTree arbol1;
                             Console.WriteLine("----------------------Que desea buscar----------------------");
@@ -453,14 +509,124 @@ namespace lab1EDII_CésarSilva
                                     arbol1 = new AVLTree();
                                     Dictionary<string, string> huffmanCodes = item.CodificarHuffmanEmpresas();
                                     Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}, Empresas:");
+                                    cartas = 0;
+                                    foreach (string arc in Program.nArchivos)
+                                    {
+
+                                        string[] partes = arc.Split('-');
+                                        if (partes.Length >= 2 && partes[1] == busqueda)
+                                        {
+                                            // Si el segundo valor coincide con el valor específico, guárdalo en segundosValores
+                                            valdpi.Add(arc);
+                                            cartas++;
+                                        }
+                                    }
                                     foreach (var kvp in huffmanCodes)
                                     {
                                         Console.WriteLine($"{kvp.Value}");
                                     }
+                                    Console.WriteLine("Tiene: " + cartas + " cartas");
                                     resultados.Add(item);
                                 }
                             }
-                            Console.WriteLine("");
+                            try
+                            {
+                                // Verifica si la carpeta no existe antes de intentar crearla
+                                if (!Directory.Exists(rutaCarpeta))
+                                {
+
+                                    // Crea la carpeta
+                                    Directory.CreateDirectory(rutaCarpeta);
+                                }
+                                else
+                                {
+                                    string[] archivos = Directory.GetFiles(rutaCarpeta);
+                                    foreach (string del in archivos)
+                                    {
+                                        File.Delete(del);
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Error al crear la carpeta: " + ex.Message);
+                            }
+                            int desplazamiento = 1; // Cambia el desplazamiento
+                            foreach (var item in valdpi)
+                            {
+                                string rutaOrigen = Path.Combine(carpeta, item);
+                                string rutaDestino = Path.Combine(rutaCarpeta, item);
+
+                                try
+                                {
+                                    // Leer el contenido del archivo desde la carpeta de origen
+                                    string contenido = File.ReadAllText(rutaOrigen);
+                                    // Modificar el contenido como desees (por ejemplo, cambiar texto)
+                                    contenido = contenido.Replace("TextoOriginal", "TextoModificado");
+                                    string textoCifrado = CifrarTSimple(contenido, desplazamiento);
+                                    // Guardar el contenido modificado en la carpeta de destino con el mismo nombre
+                                    File.WriteAllText(rutaDestino, textoCifrado);
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine("Error al modificar y guardar el archivo: " + ex.Message);
+                                }
+                            }
+                            // pregunta de busqueda para la carta que se desea
+                            Console.WriteLine("----------------------Que carta desea mostrar----------------------");
+                            string cartaver;
+                            cartaver = Console.ReadLine();
+                            Console.Clear();
+                            do
+                            {
+                                resultados.Clear();
+                                Console.Clear();
+                                Console.WriteLine("--------------Debe escoger una carta valida---------------");
+                                Console.WriteLine("----------------------Sus Resultados----------------------");
+                                foreach (var item in inserte)
+                                {
+                                    serializar busca = personas.Find(p => p.dpi == busqueda);
+
+                                    if (item.dpi == busqueda)
+                                    {
+                                        Dictionary<string, string> huffmanCodes = item.CodificarHuffmanEmpresas();
+                                        Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}, Empresas:");
+                                        cartas = 0;
+                                        foreach (string arc in Program.nArchivos)
+                                        {
+
+                                            string[] partes = arc.Split('-');
+                                            if (partes.Length >= 2 && partes[1] == busqueda)
+                                            {
+                                                // Si el segundo valor coincide con el valor específico, guárdalo en segundosValores
+                                                valdpi.Add(arc);
+                                                cartas++;
+                                            }
+                                        }
+                                        foreach (var kvp in huffmanCodes)
+                                        {
+                                            Console.WriteLine($"{kvp.Value}");
+                                        }
+                                        Console.WriteLine("Tiene: " + cartas + " cartas");
+                                        resultados.Add(item);
+                                    }
+                                }
+                                // pregunta de busqueda para la carta que se desea
+                                Console.WriteLine("----------------------Que carta desea mostrar----------------------");
+                                cartaver = Console.ReadLine();
+                            } while (cartaver == "" || Convert.ToInt32(cartaver) > cartas || cartaver == "0");
+                            foreach (var item in valdpi)
+                            {
+                                string[] partes2 = item.Split('-');
+                                if (partes2.Length >= 2 && partes2[2] == (cartaver + ".txt"))
+                                {
+                                    tdescifrado = File.ReadAllText(rutaCarpeta + "\\" + item);
+                                    Console.WriteLine("La carta es: ");
+                                    Console.WriteLine(Descifrar(tdescifrado, desplazamiento));
+                                    tdescifrado = Descifrar(tdescifrado, desplazamiento);
+                                    break;
+                                }
+                            }
                             Console.ReadLine();
                             string jsonl = "resultados.jsonl";
                             using (StreamWriter escritura = new StreamWriter(jsonl))
@@ -468,7 +634,7 @@ namespace lab1EDII_CésarSilva
                                 foreach (var resul in resultados)//arbol)
                                 {
                                     string empresaDecodificada = resul.DecodificarHuffmanEmpresas(huffmanCodes, Convert.ToString(resul.companies));
-                                    string jsons = JsonConvert.SerializeObject(resul);
+                                    string jsons = JsonConvert.SerializeObject(resul) + "\nla carta " + cartaver + " es: " + tdescifrado;
                                     escritura.WriteLine(jsons);
                                 }
                             }
@@ -491,7 +657,7 @@ namespace lab1EDII_CésarSilva
                                 Console.WriteLine("----------------------------Adios----------------------------");
                                 Console.ReadLine();
                             }
-                            break; //
+                            break;
                         case 3: //BUSQUEDA NOMBRE
                             resultados.Clear();
                             AVLTree arbol12;
@@ -551,6 +717,7 @@ namespace lab1EDII_CésarSilva
                             Console.ReadLine();
                             volver = true;
                             break;
+
                     }
                 }
                 catch (Exception)
