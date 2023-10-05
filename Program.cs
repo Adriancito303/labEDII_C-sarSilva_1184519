@@ -551,7 +551,8 @@ namespace lab1EDII_CésarSilva
                             {
                                 Console.WriteLine("Error al crear la carpeta: " + ex.Message);
                             }
-                            int desplazamiento = 1; // Cambia el desplazamiento
+                            string palabra = "A";
+                            int desplazamiento = palabra.Length; // Cambia el desplazamiento
                             foreach (var item in valdpi)
                             {
                                 string rutaOrigen = Path.Combine(carpeta, item);
