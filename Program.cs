@@ -588,12 +588,12 @@ namespace lab1EDII_CésarSilva
                             // pregunta de busqueda para la carta que se desea
                             Console.WriteLine("----------------------Que carta desea mostrar----------------------");
                             string cartaver;
-                            cartaver = Console.ReadLine();
+                            //cartaver = Console.ReadLine();
                             Console.Clear();
                             do
                             {
                                 resultados.Clear();
-                                Console.Clear();
+                                //Console.Clear();
                                 Console.WriteLine("----------------------Sus Resultados----------------------");
                                 foreach (var item in inserte)
                                 {
@@ -649,6 +649,7 @@ namespace lab1EDII_CésarSilva
                                     escritura.WriteLine(jsons);
                                 }
                             }
+                            tdescifrado = "";
                             Console.WriteLine($"-Se guardaron exitosamente en un archivo llamado: { jsonl}-");
                             Console.ReadLine();
                             Console.Clear();
@@ -816,6 +817,7 @@ namespace lab1EDII_CésarSilva
                                     escritura.WriteLine(jsons);
                                 }
                             }
+                            tdescifrado = "";
                             Console.WriteLine($"-Se guardaron exitosamente en un archivo llamado: { jsonl2}-");
                             Console.ReadLine();
                             Console.Clear();
