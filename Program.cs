@@ -368,10 +368,10 @@ namespace lab1EDII_CésarSilva
         public static List<string> valdpi = new List<string>();
         public static string tdescifrado;
         public static int cartas, conversacion;
-        public static int p, q, k, z;
-        public static BigInteger n, C;
+        public static int p, q, k, z, M;
+        public static BigInteger n, C, M2;
         public static List<BigInteger> nArchivosk = new List<BigInteger>();
-        public static string contenido2;
+        public static string contenido2, textoCifrado2;
         static void Main(string[] args)
         {
             do//SOLICITAR P Y Q
@@ -381,7 +381,7 @@ namespace lab1EDII_CésarSilva
                 p = Convert.ToInt32(Console.ReadLine());
                 Console.WriteLine("inserte un numero primo q");
                 q = Convert.ToInt32(Console.ReadLine());
-            } while (p % 2 == 0 && q % 2 == 0);
+            } while (p % 2 == 0 || q % 2 == 0);
             do//SOLICITAR K
             {
                 Console.Clear();
@@ -717,8 +717,12 @@ namespace lab1EDII_CésarSilva
                                     Dictionary<string, string> huffmanCodes = item.CodificarHuffmanEmpresas();
                                     Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}, Empresas:");
                                     conversacion = 0;
-                                    Directory.CreateDirectory(rutaConve2);
                                     int ss = 0;
+                                    if (!Directory.Exists(rutaConve2) && ss == 0)
+                                    {
+                                        Directory.CreateDirectory(rutaConve2);
+                                        ss++;
+                                    }
                                     foreach (string arc in Program.nArchivos2)
                                     {
                                         string origen = @"C:\Users\cadri\OneDrive\Escritorio\inputs\" + arc;
@@ -728,7 +732,7 @@ namespace lab1EDII_CésarSilva
                                         {
                                             // Si el segundo valor coincide con el valor específico, guárdalo en segundosValores
                                             valdpi.Add(arc);
-                                            if (ss == 0)
+                                            if (ss != 0)
                                             {
                                                 File.Copy(origen, destino);
                                             }
@@ -777,7 +781,8 @@ namespace lab1EDII_CésarSilva
                                 {
                                     // Leer el contenido del archivo desde la carpeta de origen
                                     string contenido = File.ReadAllText(rutaOrigen);
-                                    C = contenido.Length^k % n;
+                                    C = BigInteger.ModPow(contenido.Length, k, n);
+                                    M = contenido.Length;
                                     nArchivosk.Add(C);
                                     // Modificar el contenido como desees (por ejemplo, cambiar texto)
                                     contenido = contenido.Replace("TextoOriginal", "TextoModificado");
@@ -835,14 +840,13 @@ namespace lab1EDII_CésarSilva
                             {
                                 string[] partes2 = item.Split('-');
                                 BigInteger NC = nArchivosk[Convert.ToInt32(converver) - 1];
-                                BigInteger M = NC ^ j % n;
-                                //M = M - 1;
                                 try
                                 {
                                     // Leer el contenido del archivo desde la carpeta de origen
                                     contenido2 = File.ReadAllText(rutaConve2 + "\\" + item);
                                     // Modificar el contenido como desees (por ejemplo, cambiar texto)
                                     contenido2 = contenido2.Replace("TextoOriginal", "TextoModificado");
+                                    //textoCifrado2 = CifrarTSimple(contenido2, desplazamiento2);
                                 }
                                 catch (Exception ex)
                                 {
@@ -851,7 +855,8 @@ namespace lab1EDII_CésarSilva
                                 if (partes2.Length >= 2 && partes2[2] == (converver + ".txt"))
                                 {
                                     tdescifrado = File.ReadAllText(rutaConve + "\\" + item);
-                                    if (contenido2.Length != M)
+                                    C = BigInteger.Pow(contenido2.Length, k) % n;
+                                    if (NC != C)
                                     {
                                         Console.WriteLine("La conversacion fue alterada no se mostrara");
                                     }
@@ -888,23 +893,6 @@ namespace lab1EDII_CésarSilva
                                 Console.Clear();
                                 Console.WriteLine("-----------------Volviendo al menú principal-----------------");
                                 Console.ReadLine();
-                                try
-                                {
-                                    if (Directory.Exists(rutaConve2))
-                                    {
-                                        DirectoryInfo directorio = new DirectoryInfo(rutaConve2);
-
-                                        // Borra todos los archivos en la carpeta
-                                        foreach (FileInfo ff in directorio.GetFiles())
-                                        {
-                                            ff.Delete();
-                                        }
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine("Error al crear la carpeta: " + ex.Message);
-                                }
                             }
                             else
                             {
