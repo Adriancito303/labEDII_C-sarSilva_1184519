@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 //2739728493209
+//
 //C:\Users\cadri\OneDrive\Escritorio\input.csv
 namespace lab1EDII_CésarSilva
 {
@@ -18,19 +20,21 @@ namespace lab1EDII_CésarSilva
 
     class insertar
     {
-        public insertar(string nombre, string dpis, string fechas, string direcciones, List<string> empresas)
+        public insertar(string nombre, string dpis, string fechas, string direcciones, List<string> empresas, string reclutador)
         {
             name = nombre;
             dpi = dpis;
             datebirth = fechas;
             address = direcciones;
             companies = empresas;
+            recluiter = reclutador;
         }
         public string name { get; set; }
         public string dpi { get; set; }
         public string datebirth { get; set; }
         public string address { get; set; }
         public List<string> companies { get; set; }
+        public string recluiter { get; set; }
         static void GenerateHuffmanCodes(HuffmanNode node, string code, Dictionary<string, string> huffmanCodes)
         {
             if (node == null)
@@ -119,19 +123,21 @@ namespace lab1EDII_CésarSilva
     
     class serializar
     {
-        public serializar(string nombre, string dpis, string fechas, string direcciones, List<string> empres)
+        public serializar(string nombre, string dpis, string fechas, string direcciones, List<string> empres, string reclutador)
         {
             name = nombre;
             dpi = dpis;
             datebirth = fechas;
             address = direcciones;
             companies = empres;
+            recluiter = reclutador;
         }
         public string name { get; set; }
         public string dpi { get; set; }
         public string datebirth { get; set; }
         public string address { get; set; }
         public List<string> companies { get; set; }
+        public string recluiter { get; set; }
         static void GenerateHuffmanCodes(HuffmanNode node, string code, Dictionary<string, string> huffmanCodes)
         {
             if (node == null)
@@ -370,26 +376,85 @@ namespace lab1EDII_CésarSilva
         public static int cartas, conversacion;
         public static int p, q, k, z, M;
         public static BigInteger n, C, M2;
+        public static string contraseña;
         public static List<BigInteger> nArchivosk = new List<BigInteger>();
-        public static string contenido2, textoCifrado2;
+        public static string contenido2;
+
+        static bool Primo(int numero)
+        {
+            if (numero <= 1)
+                return false;
+            if (numero <= 3)
+                return true;
+            if (numero % 2 == 0 || numero % 3 == 0)
+                return false;
+
+            for (int i = 5; i * i <= numero; i += 6)
+            {
+                if (numero % i == 0 || numero % (i + 2) == 0)
+                    return false;
+            }
+
+            return true;
+        }
+
+        static string GetContra()
+        {
+            string password = "";
+            ConsoleKeyInfo keyInfo;
+
+            do
+            {
+                keyInfo = Console.ReadKey(true); // El true oculta la tecla presionada.
+
+                if (keyInfo.Key != ConsoleKey.Backspace && keyInfo.Key != ConsoleKey.Enter)
+                {
+                    password += keyInfo.KeyChar;
+                    Console.Write("*"); // Muestra un asterisco en lugar del carácter.
+                }
+                else if (keyInfo.Key == ConsoleKey.Backspace && password.Length > 0)
+                {
+                    password = password.Substring(0, password.Length - 1);
+                    Console.Write("\b \b"); // Borra el último carácter mostrado.
+                }
+            } while (keyInfo.Key != ConsoleKey.Enter);
+
+            return password;
+        }
+        static Random random = new Random();
+
         static void Main(string[] args)
         {
+            int limite = 100000;
             do//SOLICITAR P Y Q
             {
                 Console.Clear();
-                Console.WriteLine("inserte un numero primo p");
-                p = Convert.ToInt32(Console.ReadLine());
-                Console.WriteLine("inserte un numero primo q");
-                q = Convert.ToInt32(Console.ReadLine());
-            } while (p % 2 == 0 || q % 2 == 0);
+                p = random.Next(limite);
+                int numero = p;
+                if (Primo(numero))
+                {
+                    p = numero;
+                }
+                q = random.Next(limite);
+                numero = q; ;
+                if (Primo(numero))
+                {
+                    q = numero;
+                }
+            } while (p % 2 == 0 || q % 2 == 0 && p > limite && q > limite);
+            contraseña = "MiContraseñaPrivada";
             do//SOLICITAR K
             {
                 Console.Clear();
-                Console.WriteLine("inserte un numero primo k");
-                k = Convert.ToInt32(Console.ReadLine());
+                k = random.Next(limite);
+                int numero = k;
+                if (Primo(numero))
+                {
+                    k = numero;
+                }
                 n = p * q;
                 z = (p - 1) * (q - 1);
-            } while (k % 2 == 0 && k < z);
+            } while (k % 2 == 0 && k < z & k > limite);
             BigInteger j = 0;
             while (true) //CALCULAR J
             {
@@ -399,6 +464,8 @@ namespace lab1EDII_CésarSilva
                 }
                 j++;
             }
+            //clave pública (n,k)
+            //calcular clave privada (j)
             Console.Clear();
             bool volver = true;
             string opi;
@@ -417,8 +484,9 @@ namespace lab1EDII_CésarSilva
                     Console.WriteLine("1. Operaciones a travez de un nuevo CSV");
                     Console.WriteLine("2. Buscar por DPI para CARTAS de recomendacion");
                     Console.WriteLine("3. Buscar por DPI para CONVERSACIONES");
-                    Console.WriteLine("4. Buscar un dato por nombre");
-                    Console.WriteLine("5. Salir");
+                    Console.WriteLine("4. Hacer Login");
+                    Console.WriteLine("5. Buscar un dato por nombre");
+                    Console.WriteLine("6. Salir");
                     opcion = Convert.ToInt32(Console.ReadLine());
                     Console.Clear();
                     switch (opcion)
@@ -457,7 +525,8 @@ namespace lab1EDII_CésarSilva
                                                             inserte.dpi == item.dpi &&
                                                             inserte.address == item.address &&
                                                             inserte.datebirth == item.datebirth &&
-                                                            inserte.companies == item.companies);
+                                                            inserte.companies == item.companies &&
+                                                            inserte.recluiter == item.recluiter);
                                     }
                                     delete.Clear();
                                 }
@@ -627,7 +696,7 @@ namespace lab1EDII_CésarSilva
                                     if (item.dpi == busqueda)
                                     {
                                         Dictionary<string, string> huffmanCodes = item.CodificarHuffmanEmpresas();
-                                        Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}, Empresas:");
+                                        Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address},Reclutador {item.recluiter}, Empresas:");
                                         cartas = 0;
                                         foreach (string arc in Program.nArchivos)
                                         {
@@ -697,38 +766,263 @@ namespace lab1EDII_CésarSilva
                             }
                             break;
                         case 3: //BUSQUEDA DPI PARA CONVERSACION
+                            Console.WriteLine("----------------------Inserte contraseña----------------------");
+                            string verc = GetContra();
+                            Console.Clear();
+                            if (verc == contraseña)
+                            {
+                                Console.WriteLine("----------------------Contraseña Correcta----------------------");
+                                Console.WriteLine("---------------------Accediendo al sistema---------------------");
+                                System.Threading.Thread.Sleep(5000);
+                                Console.Clear();
+                                nArchivosk.Clear();
+                                valdpi.Clear();
+                                string rutaConve = @"C:\Users\cadri\OneDrive\Escritorio\conversacioncifrada";
+                                string rutaConve2 = @"C:\Users\cadri\OneDrive\Escritorio\conversaciones";
+                                resultados.Clear();
+                                AVLTree arbol12;
+                                Console.WriteLine("----------------------Que desea buscar----------------------");
+                                string busqueda2 = Console.ReadLine();
+                                Console.Clear();
+                                Console.WriteLine("----------------------Sus Resultados----------------------");
+                                foreach (var item in inserte)
+                                {
+                                    serializar busca = personas.Find(p => p.dpi == busqueda2);
+
+                                    if (item.dpi == busqueda2)
+                                    {
+                                        arbol1 = new AVLTree();
+                                        Dictionary<string, string> huffmanCodes = item.CodificarHuffmanEmpresas();
+                                        Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}, Reclutador: {item.recluiter}, Empresas:");
+                                        conversacion = 0;
+                                        int ss = 0;
+                                        if (!Directory.Exists(rutaConve2) && ss == 0)
+                                        {
+                                            Directory.CreateDirectory(rutaConve2);
+                                            ss++;
+                                        }
+                                        foreach (string arc in Program.nArchivos2)
+                                        {
+                                            string origen = @"C:\Users\cadri\OneDrive\Escritorio\inputs\" + arc;
+                                            string destino = @"C:\Users\cadri\OneDrive\Escritorio\conversaciones\" + arc;
+                                            string[] partes = arc.Split('-');
+                                            if (partes.Length >= 2 && partes[1] == busqueda2 && partes[0] == "CONV")
+                                            {
+                                                // Si el segundo valor coincide con el valor específico, guárdalo en segundosValores
+                                                valdpi.Add(arc);
+                                                if (ss != 0)
+                                                {
+                                                    File.Copy(origen, destino);
+                                                }
+                                                conversacion++;
+                                            }
+                                        }
+                                        ss++;
+                                        foreach (var kvp in huffmanCodes)
+                                        {
+                                            Console.WriteLine($"{kvp.Value}");
+                                        }
+                                        Console.WriteLine("Tiene: " + conversacion + " conversaciones");
+                                        resultados.Add(item);
+                                    }
+                                }
+                                try
+                                {
+                                    // Verifica si la carpeta no existe antes de intentar crearla
+                                    if (!Directory.Exists(rutaConve))
+                                    {
+
+                                        // Crea la carpeta
+                                        Directory.CreateDirectory(rutaConve);
+                                    }
+                                    else
+                                    {
+                                        string[] archivos = Directory.GetFiles(rutaConve);
+                                        foreach (string del in archivos)
+                                        {
+                                            File.Delete(del);
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    Console.WriteLine("Error al crear la carpeta: " + ex.Message);
+                                }
+                                string palabra2 = "A";
+                                int desplazamiento2 = palabra2.Length; // Cambia el desplazamiento
+                                foreach (var item in valdpi)
+                                {
+                                    string rutaOrigen = Path.Combine(carpeta, item);
+                                    string rutaDestino = Path.Combine(rutaConve, item);
+
+                                    try
+                                    {
+                                        // Leer el contenido del archivo desde la carpeta de origen
+                                        string contenido = File.ReadAllText(rutaOrigen);
+                                        C = BigInteger.ModPow(contenido.Length, k, n);
+                                        M = contenido.Length;
+                                        nArchivosk.Add(C);
+                                        // Modificar el contenido como desees (por ejemplo, cambiar texto)
+                                        contenido = contenido.Replace("TextoOriginal", "TextoModificado");
+                                        string textoCifrado = CifrarTSimple(contenido, desplazamiento2);
+                                        // Guardar el contenido modificado en la carpeta de destino con el mismo nombre
+                                        File.WriteAllText(rutaDestino, textoCifrado);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("Error al modificar y guardar el archivo: " + ex.Message);
+                                    }
+                                }
+                                // pregunta de busqueda para la carta que se desea
+                                Console.WriteLine("----------------------Que conversacion desea mostrar----------------------");
+                                string converver;
+                                //converver = Console.ReadLine();
+                                Console.Clear();
+                                do
+                                {
+                                    resultados.Clear();
+                                    //Console.Clear();
+                                    Console.WriteLine("----------------------Sus Resultados----------------------");
+                                    foreach (var item in inserte)
+                                    {
+                                        serializar busca = personas.Find(p => p.dpi == busqueda2);
+
+                                        if (item.dpi == busqueda2)
+                                        {
+                                            Dictionary<string, string> huffmanCodes = item.CodificarHuffmanEmpresas();
+                                            Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}, Empresas:");
+                                            conversacion = 0;
+                                            foreach (string arc in Program.nArchivos2)
+                                            {
+                                                string[] partes = arc.Split('-');
+                                                if (partes.Length >= 2 && partes[1] == busqueda2 && partes[0] == "CONV")
+                                                {
+                                                    // Si el segundo valor coincide con el valor específico, guárdalo en segundosValores
+                                                    valdpi.Add(arc);
+                                                    conversacion++;
+                                                }
+                                            }
+                                            foreach (var kvp in huffmanCodes)
+                                            {
+                                                Console.WriteLine($"{kvp.Value}");
+                                            }
+                                            Console.WriteLine("Tiene: " + conversacion + " conversaciones");
+                                            resultados.Add(item);
+                                        }
+                                    }
+                                    // pregunta de busqueda para la carta que se desea
+                                    Console.WriteLine("----------------------Que conversacion desea ver----------------------");
+                                    converver = Console.ReadLine();
+                                } while (converver == "" || Convert.ToInt32(converver) > conversacion || converver == "0");
+                                foreach (var item in valdpi)
+                                {
+                                    string[] partes2 = item.Split('-');
+                                    BigInteger NC = nArchivosk[Convert.ToInt32(converver) - 1];
+                                    try
+                                    {
+                                        // Leer el contenido del archivo desde la carpeta de origen
+                                        contenido2 = File.ReadAllText(rutaConve2 + "\\" + item);
+                                        // Modificar el contenido como desees (por ejemplo, cambiar texto)
+                                        contenido2 = contenido2.Replace("TextoOriginal", "TextoModificado");
+                                        //textoCifrado2 = CifrarTSimple(contenido2, desplazamiento2);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Console.WriteLine("Error al modificar y guardar el archivo: " + ex.Message);
+                                    }
+                                    if (partes2.Length >= 2 && partes2[2] == (converver + ".txt"))
+                                    {
+                                        tdescifrado = File.ReadAllText(rutaConve + "\\" + item);
+                                        //C = BigInteger.Pow(contenido2.Length, k) % n;
+                                        M2 = BigInteger.ModPow(contenido2.Length, j, n);
+                                        if (NC != M2)
+                                        {
+                                            Console.WriteLine("La conversacion fue alterada no se mostrara");
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("La conversacion es: ");
+                                            Console.WriteLine(Descifrar(tdescifrado, desplazamiento2));
+                                            tdescifrado = Descifrar(tdescifrado, desplazamiento2);
+                                        }
+                                        break;
+                                    }
+                                }
+                                Console.ReadLine();
+                                string jsonl2 = "resultados.jsonl";
+                                using (StreamWriter escritura = new StreamWriter(jsonl2))
+                                {
+                                    foreach (var resul in resultados)//arbol)
+                                    {
+                                        string empresaDecodificada = resul.DecodificarHuffmanEmpresas(huffmanCodes, Convert.ToString(resul.companies));
+                                        string jsons = JsonConvert.SerializeObject(resul) + "\nla conversacion " + converver + " es: " + tdescifrado;
+                                        escritura.WriteLine(jsons);
+                                    }
+                                }
+                                tdescifrado = "";
+                                Console.WriteLine($"-Se guardaron exitosamente en un archivo llamado: { jsonl2}-");
+                                Console.ReadLine();
+                                Console.Clear();
+                                Console.WriteLine("-----------------¿Desea volver al menú principal?-----------------");
+                                Console.WriteLine("---------Presione 1 para volver, u otra tecla para salir.---------");
+                                opi = Console.ReadLine();
+                                if (opi == "1")
+                                {
+                                    volver = true;
+                                    Console.Clear();
+                                    Console.WriteLine("-----------------Volviendo al menú principal-----------------");
+                                    Console.ReadLine();
+                                }
+                                else
+                                {
+                                    valdpi.Clear();
+                                    Console.Clear();
+                                    Console.WriteLine("----------------------------Adios----------------------------");
+                                    Console.ReadLine();
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("----------------------Contraseña incorrecta----------------------");
+                                Console.WriteLine("------------------------Volviendo al Menú------------------------");
+                                System.Threading.Thread.Sleep(5000);
+                                volver = true;
+                            }
+                            break;
+                        case 4: //LOGIN a la Informacion
                             nArchivosk.Clear();
                             valdpi.Clear();
-                            string rutaConve = @"C:\Users\cadri\OneDrive\Escritorio\conversacioncifrada";
-                            string rutaConve2 = @"C:\Users\cadri\OneDrive\Escritorio\conversaciones";
+                            string rutaConve3 = @"C:\Users\cadri\OneDrive\Escritorio\conversacioncifrada";
+                            string rutaConve4 = @"C:\Users\cadri\OneDrive\Escritorio\conversaciones";
                             resultados.Clear();
-                            AVLTree arbol12;
+                            AVLTree arbol13;
                             Console.WriteLine("----------------------Que desea buscar----------------------");
-                            string busqueda2 = Console.ReadLine();
+                            string busqueda3 = Console.ReadLine();
                             Console.Clear();
                             Console.WriteLine("----------------------Sus Resultados----------------------");
                             foreach (var item in inserte)
                             {
-                                serializar busca = personas.Find(p => p.dpi == busqueda2);
+                                serializar busca = personas.Find(p => p.dpi == busqueda3);
 
-                                if (item.dpi == busqueda2)
+                                if (item.dpi == busqueda3)
                                 {
                                     arbol1 = new AVLTree();
                                     Dictionary<string, string> huffmanCodes = item.CodificarHuffmanEmpresas();
-                                    Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}, Empresas:");
+                                    Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}, Reclutador: {item.recluiter}, Empresas:");
                                     conversacion = 0;
                                     int ss = 0;
-                                    if (!Directory.Exists(rutaConve2) && ss == 0)
+                                    if (!Directory.Exists(rutaConve4) && ss == 0)
                                     {
-                                        Directory.CreateDirectory(rutaConve2);
+                                        Directory.CreateDirectory(rutaConve4);
                                         ss++;
                                     }
                                     foreach (string arc in Program.nArchivos2)
                                     {
                                         string origen = @"C:\Users\cadri\OneDrive\Escritorio\inputs\" + arc;
-                                        string destino = @"C:\Users\cadri\OneDrive\Escritorio\conversaciones\" + arc; 
+                                        string destino = @"C:\Users\cadri\OneDrive\Escritorio\conversaciones\" + arc;
                                         string[] partes = arc.Split('-');
-                                        if (partes.Length >= 2 && partes[1] == busqueda2 && partes[0] == "CONV")
+                                        if (partes.Length >= 2 && partes[1] == busqueda3 && partes[0] == "CONV")
                                         {
                                             // Si el segundo valor coincide con el valor específico, guárdalo en segundosValores
                                             valdpi.Add(arc);
@@ -751,15 +1045,15 @@ namespace lab1EDII_CésarSilva
                             try
                             {
                                 // Verifica si la carpeta no existe antes de intentar crearla
-                                if (!Directory.Exists(rutaConve))
+                                if (!Directory.Exists(rutaConve3))
                                 {
 
                                     // Crea la carpeta
-                                    Directory.CreateDirectory(rutaConve);
+                                    Directory.CreateDirectory(rutaConve3);
                                 }
                                 else
                                 {
-                                    string[] archivos = Directory.GetFiles(rutaConve);
+                                    string[] archivos = Directory.GetFiles(rutaConve3);
                                     foreach (string del in archivos)
                                     {
                                         File.Delete(del);
@@ -770,12 +1064,12 @@ namespace lab1EDII_CésarSilva
                             {
                                 Console.WriteLine("Error al crear la carpeta: " + ex.Message);
                             }
-                            string palabra2 = "A";
-                            int desplazamiento2 = palabra2.Length; // Cambia el desplazamiento
+                            string palabra3 = "A";
+                            int desplazamiento3 = palabra3.Length; // Cambia el desplazamiento
                             foreach (var item in valdpi)
                             {
                                 string rutaOrigen = Path.Combine(carpeta, item);
-                                string rutaDestino = Path.Combine(rutaConve, item);
+                                string rutaDestino = Path.Combine(rutaConve3, item);
 
                                 try
                                 {
@@ -786,7 +1080,7 @@ namespace lab1EDII_CésarSilva
                                     nArchivosk.Add(C);
                                     // Modificar el contenido como desees (por ejemplo, cambiar texto)
                                     contenido = contenido.Replace("TextoOriginal", "TextoModificado");
-                                    string textoCifrado = CifrarTSimple(contenido, desplazamiento2);
+                                    string textoCifrado = CifrarTSimple(contenido, desplazamiento3);
                                     // Guardar el contenido modificado en la carpeta de destino con el mismo nombre
                                     File.WriteAllText(rutaDestino, textoCifrado);
                                 }
@@ -797,7 +1091,7 @@ namespace lab1EDII_CésarSilva
                             }
                             // pregunta de busqueda para la carta que se desea
                             Console.WriteLine("----------------------Que conversacion desea mostrar----------------------");
-                            string converver;
+                            string converver3;
                             //converver = Console.ReadLine();
                             Console.Clear();
                             do
@@ -807,9 +1101,9 @@ namespace lab1EDII_CésarSilva
                                 Console.WriteLine("----------------------Sus Resultados----------------------");
                                 foreach (var item in inserte)
                                 {
-                                    serializar busca = personas.Find(p => p.dpi == busqueda2);
+                                    serializar busca = personas.Find(p => p.dpi == busqueda3);
 
-                                    if (item.dpi == busqueda2)
+                                    if (item.dpi == busqueda3)
                                     {
                                         Dictionary<string, string> huffmanCodes = item.CodificarHuffmanEmpresas();
                                         Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}, Empresas:");
@@ -817,7 +1111,7 @@ namespace lab1EDII_CésarSilva
                                         foreach (string arc in Program.nArchivos2)
                                         {
                                             string[] partes = arc.Split('-');
-                                            if (partes.Length >= 2 && partes[1] == busqueda2 && partes[0] == "CONV")
+                                            if (partes.Length >= 2 && partes[1] == busqueda3 && partes[0] == "CONV")
                                             {
                                                 // Si el segundo valor coincide con el valor específico, guárdalo en segundosValores
                                                 valdpi.Add(arc);
@@ -834,16 +1128,16 @@ namespace lab1EDII_CésarSilva
                                 }
                                 // pregunta de busqueda para la carta que se desea
                                 Console.WriteLine("----------------------Que conversacion desea ver----------------------");
-                                converver = Console.ReadLine();
-                            } while (converver == "" || Convert.ToInt32(converver) > conversacion || converver == "0");
+                                converver3 = Console.ReadLine();
+                            } while (converver3 == "" || Convert.ToInt32(converver3) > conversacion || converver3 == "0");
                             foreach (var item in valdpi)
                             {
                                 string[] partes2 = item.Split('-');
-                                BigInteger NC = nArchivosk[Convert.ToInt32(converver) - 1];
+                                BigInteger NC = nArchivosk[Convert.ToInt32(converver3) - 1];
                                 try
                                 {
                                     // Leer el contenido del archivo desde la carpeta de origen
-                                    contenido2 = File.ReadAllText(rutaConve2 + "\\" + item);
+                                    contenido2 = File.ReadAllText(rutaConve4 + "\\" + item);
                                     // Modificar el contenido como desees (por ejemplo, cambiar texto)
                                     contenido2 = contenido2.Replace("TextoOriginal", "TextoModificado");
                                     //textoCifrado2 = CifrarTSimple(contenido2, desplazamiento2);
@@ -852,36 +1146,37 @@ namespace lab1EDII_CésarSilva
                                 {
                                     Console.WriteLine("Error al modificar y guardar el archivo: " + ex.Message);
                                 }
-                                if (partes2.Length >= 2 && partes2[2] == (converver + ".txt"))
+                                if (partes2.Length >= 2 && partes2[2] == (converver3 + ".txt"))
                                 {
-                                    tdescifrado = File.ReadAllText(rutaConve + "\\" + item);
-                                    C = BigInteger.Pow(contenido2.Length, k) % n;
-                                    if (NC != C)
+                                    tdescifrado = File.ReadAllText(rutaConve3 + "\\" + item);
+                                    //C = BigInteger.Pow(contenido2.Length, k) % n;
+                                    M2 = BigInteger.ModPow(contenido2.Length, j, n);
+                                    if (NC != M2)
                                     {
                                         Console.WriteLine("La conversacion fue alterada no se mostrara");
                                     }
                                     else
                                     {
                                         Console.WriteLine("La conversacion es: ");
-                                        Console.WriteLine(Descifrar(tdescifrado, desplazamiento2));
-                                        tdescifrado = Descifrar(tdescifrado, desplazamiento2);
+                                        Console.WriteLine(Descifrar(tdescifrado, desplazamiento3));
+                                        tdescifrado = Descifrar(tdescifrado, desplazamiento3);
                                     }
                                     break;
                                 }
                             }
                             Console.ReadLine();
-                            string jsonl2 = "resultados.jsonl";
-                            using (StreamWriter escritura = new StreamWriter(jsonl2))
+                            string jsonl23 = "resultados.jsonl";
+                            using (StreamWriter escritura = new StreamWriter(jsonl23))
                             {
                                 foreach (var resul in resultados)//arbol)
                                 {
                                     string empresaDecodificada = resul.DecodificarHuffmanEmpresas(huffmanCodes, Convert.ToString(resul.companies));
-                                    string jsons = JsonConvert.SerializeObject(resul) + "\nla conversacion " + converver + " es: " + tdescifrado;
+                                    string jsons = JsonConvert.SerializeObject(resul) + "\nla conversacion " + converver3 + " es: " + tdescifrado;
                                     escritura.WriteLine(jsons);
                                 }
                             }
                             tdescifrado = "";
-                            Console.WriteLine($"-Se guardaron exitosamente en un archivo llamado: { jsonl2}-");
+                            Console.WriteLine($"-Se guardaron exitosamente en un archivo llamado: { jsonl23}-");
                             Console.ReadLine();
                             Console.Clear();
                             Console.WriteLine("-----------------¿Desea volver al menú principal?-----------------");
@@ -902,18 +1197,18 @@ namespace lab1EDII_CésarSilva
                                 Console.ReadLine();
                             }
                             break;
-                        case 4: //BUSQUEDA NOMBRE
+                        case 5: //BUSQUEDA NOMBRE
                             resultados.Clear();
                             Console.WriteLine("----------------------Que desea buscar----------------------");
-                            string busqueda3 = Console.ReadLine();
+                            string busqueda4 = Console.ReadLine();
                             Console.Clear(); 
                             Console.WriteLine("----------------------Sus Resultados----------------------");
                             foreach (var item in inserte)
                             {
-                                serializar busca = inserte.Find(p => p.name == busqueda3);
-                                if (item.name == busqueda3)
+                                serializar busca = inserte.Find(p => p.name == busqueda4);
+                                if (item.name == busqueda4)
                                 {
-                                    arbol12 = new AVLTree();
+                                    //arbol12 = new AVLTree();
                                     Console.WriteLine($"name: {item.name}, dpi: {item.dpi}, datebith: {item.datebirth}, address: {item.address}");
                                     
                                     resultados.Add(item);
@@ -950,7 +1245,7 @@ namespace lab1EDII_CésarSilva
                                 Console.ReadLine();
                             }
                             break;
-                        case 5://SALIDA
+                        case 6://SALIDA
                             Console.Clear();
                             Console.WriteLine("----------------------------Adios----------------------------");
                             Console.ReadLine();
