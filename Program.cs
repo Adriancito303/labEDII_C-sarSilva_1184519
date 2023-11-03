@@ -427,7 +427,7 @@ namespace lab1EDII_CésarSilva
 
         static void Main(string[] args)
         {
-            int limite = 100000;
+            int limite = 1000000000;
             do//SOLICITAR P Y Q
             {
                 p = random.Next(limite);
